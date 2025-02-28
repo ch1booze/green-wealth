@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Dashboard</title>
+    </head>
+
+    <body>
+        <h1>Dashboard</h1>
+        <p>Welcome, {{ full_name }}!</p>
+        <p>Your email: {{ email }}</p>
+
+        <hr />
+
+        <h2>Generate Portfolio</h2>
+        <form method="POST" action="{{ url_for('dashboard') }}">
+            {{ portfolio_generation_form.hidden_tag() }}
+
+            <label>{{ portfolio_generation_form.age.label }}</label>
+            {{ portfolio_generation_form.age() }}<br /><br />
+
+            <label>{{ portfolio_generation_form.risk_level.label }}</label>
+            {{ portfolio_generation_form.risk_level() }}<br /><br />
+
+            <label
+                >{{ portfolio_generation_form.investment_horizon.label }}</label
+            >
+            {{ portfolio_generation_form.investment_horizon() }}<br /><br />
+
+            <label
+                >{{ portfolio_generation_form.monthly_investment.label }}</label
+            >
+            {{ portfolio_generation_form.monthly_investment() }}<br /><br />
+
+            <label>{{ portfolio_generation_form.investment_goal.label }}</label>
+            {{ portfolio_generation_form.investment_goal() }}<br /><br />
+
+            {{ portfolio_generation_form.submit() }}
+        </form>
+
+        <hr />
+
+        <h2>Review Portfolio</h2>
+        <form method="POST" action="{{ url_for('dashboard') }}">
+            {{ portfolio_review_form.hidden_tag() }}
+
+            <label>{{ portfolio_review_form.age.label }}</label>
+            {{ portfolio_review_form.age() }}<br /><br />
+
+            <label>{{ portfolio_review_form.risk_level.label }}</label>
+            {{ portfolio_review_form.risk_level() }}<br /><br />
+
+            <label>{{ portfolio_review_form.investment_horizon.label }}</label>
+            {{ portfolio_review_form.investment_horizon() }}<br /><br />
+
+            <h3>Funds:</h3>
+
+            {% for fund in portfolio_review_form.funds %}
+            <p>
+                {{ fund.fund_name.label }} {{ fund.fund_name() }} {{
+                fund.amount.label }} {{ fund.amount() }} {{ fund.remove() }}
+            </p>
+            {% endfor %} {{ portfolio_review_form.add_fund() }} {{
+            portfolio_review_form.submit() }}
+        </form>
+    </body>
+</html>
