@@ -10,12 +10,6 @@ from app.forms import (
     SignupForm,
     VerifyForm,
 )
-from app.prompts import (
-    portfolio_generation_system_prompt,
-    portfolio_generation_user_query,
-    portfolio_review_system_prompt,
-    portfolio_review_user_query,
-)
 from app.utils import generate_otp, get_llm_response, verify_otp
 
 app = create_app()
@@ -98,6 +92,9 @@ def verify():
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
+    if "email" not in session:
+        return redirect(url_for("login"))
+
     full_name = session.get("full_name")
     email = session.get("email")
 
@@ -105,21 +102,11 @@ def dashboard():
     portfolio_review_form = PortfolioReviewForm()
 
     if portfolio_generation_form.validate_on_submit():
-        print(
-            get_llm_response(
-                system_prompt=portfolio_generation_system_prompt(),
-                user_query=portfolio_generation_user_query(portfolio_generation_form),
-            )
-        )
+        print(get_llm_response(form=portfolio_generation_form))
         return redirect(url_for("dashboard"))
 
     if portfolio_review_form.validate_on_submit():
-        print(
-            get_llm_response(
-                system_prompt=portfolio_review_system_prompt(),
-                user_query=portfolio_review_user_query(portfolio_review_form),
-            )
-        )
+        print(get_llm_response(form=portfolio_review_form))
         return redirect(url_for("dashboard"))
 
     if "add_fund" in request.form:
@@ -137,6 +124,12 @@ def dashboard():
         portfolio_generation_form=portfolio_generation_form,
         portfolio_review_form=portfolio_review_form,
     )
+
+
+@app.get("/logout")
+def logout():
+    session.clear()
+    redirect(url_for("signup"))
 
 
 if __name__ == "__main__":

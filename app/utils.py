@@ -1,11 +1,18 @@
 import json
-import secrets
+
 import pyotp
 from openai import OpenAI
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 
-from app.environment import DEEPSEEK_API_KEY, SESSION_SECRET
+from app.environment import XAI_API_KEY
+from app.forms import PortfolioGenerationForm, PortfolioReviewForm
+from app.prompts import (
+    portfolio_generation_system_prompt,
+    portfolio_generation_user_query,
+    portfolio_review_system_prompt,
+    portfolio_review_user_query,
+)
 
 
 def generate_otp():
@@ -33,11 +40,19 @@ def send_otp_email(email: str, otp: str):
     print(response.headers)
 
 
-def get_llm_response(system_prompt: str, user_query: str):
+def get_llm_response(form: PortfolioReviewForm | PortfolioGenerationForm):
     client = OpenAI(
-        base_url="https://api.deepseek.com",
-        api_key=DEEPSEEK_API_KEY,
+        base_url="https://api.x.ai/v1",
+        api_key=XAI_API_KEY,
     )
+
+    if isinstance(form, PortfolioGenerationForm):
+        system_prompt = portfolio_generation_system_prompt()
+        user_query = portfolio_generation_user_query(form)
+    elif isinstance(form, PortfolioReviewForm):
+        system_prompt = portfolio_review_system_prompt()
+        user_query = portfolio_review_user_query(form)
+
     response = client.chat.completions.create(
         model="deepseek-chat",
         messages=[

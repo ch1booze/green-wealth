@@ -4,7 +4,7 @@ from wtforms import (
     EmailField,
     FieldList,
     FormField,
-    IntegerRangeField,
+    IntegerField,
     SelectField,
     StringField,
     SubmitField,
@@ -29,7 +29,7 @@ class VerifyForm(FlaskForm):
 
 
 class PersonalInfoForm(FlaskForm):
-    age = IntegerRangeField("Age", validators=[DataRequired()])
+    age = IntegerField("Age", validators=[DataRequired()])
     risk_level = SelectField(
         "Risk Level",
         choices=[
