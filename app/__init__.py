@@ -6,7 +6,7 @@ from flask_wtf import CSRFProtect
 from .database import db
 from .environment import SESSION_SECRET
 
-# csrf = CSRFProtect()
+csrf = CSRFProtect()
 
 
 def create_app():
@@ -16,7 +16,7 @@ def create_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db.sqlite"
 
     db.init_app(app)
-    # csrf.init_app(app)
+    csrf.init_app(app)
 
     with app.app_context():
         db.create_all()

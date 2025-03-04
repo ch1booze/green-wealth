@@ -34,7 +34,7 @@ def signup():
         email = signup_form.email.data
         otp = generate_otp()
 
-        user = db.get_or_404(User, email)
+        user = User.query.filter_by(email=email).first()
         if user:
             print("User already exists")
         else:
@@ -55,7 +55,7 @@ def login():
     if login_form.validate_on_submit():
         email = login_form.email.data
 
-        user = db.get_or_404(User, email)
+        user = User.query.filter_by(email=email).first()
         if user:
             otp = generate_otp()
             session["email"] = email

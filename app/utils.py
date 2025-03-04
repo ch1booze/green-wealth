@@ -7,8 +7,6 @@ from sendgrid.helpers.mail import Mail
 
 from app.environment import DEEPSEEK_API_KEY, SESSION_SECRET
 
-# from app.environment import SENDGRID_API_KEY, XAI_API_KEY
-
 
 def generate_otp():
     totp = pyotp.TOTP("X4R4C7KUWIJK5QNIXB3KSFW2DZA3WDIV")

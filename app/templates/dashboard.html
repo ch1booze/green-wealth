@@ -10,57 +10,86 @@
         <p>Your email: {{ email }}</p>
 
         <hr />
+        <label>
+            Switch Form:
+            <input type="checkbox" id="formSwitcher" />
+        </label>
 
-        <h2>Generate Portfolio</h2>
-        <form method="POST" action="{{ url_for('dashboard') }}">
-            {{ portfolio_generation_form.csrf_token }}
+        <div id="portfolioGenerationForm">
+            <h2>Generate Portfolio</h2>
+            <form method="POST" action="{{ url_for('dashboard') }}">
+                {{ portfolio_generation_form.csrf_token }}
 
-            <label>{{ portfolio_generation_form.age.label }}</label>
-            {{ portfolio_generation_form.age() }}<br /><br />
-
-            <label>{{ portfolio_generation_form.risk_level.label }}</label>
-            {{ portfolio_generation_form.risk_level() }}<br /><br />
-
-            <label
-                >{{ portfolio_generation_form.investment_horizon.label }}</label
-            >
-            {{ portfolio_generation_form.investment_horizon() }}<br /><br />
-
-            <label
-                >{{ portfolio_generation_form.monthly_investment.label }}</label
-            >
-            {{ portfolio_generation_form.monthly_investment() }}<br /><br />
-
-            <label>{{ portfolio_generation_form.investment_goal.label }}</label>
-            {{ portfolio_generation_form.investment_goal() }}<br /><br />
-
-            {{ portfolio_generation_form.submit() }}
-        </form>
+                <label>{{ portfolio_generation_form.age.label }}</label>
+                {{ portfolio_generation_form.age() }}<br /><br />
+                <label>{{ portfolio_generation_form.risk_level.label }}</label>
+                {{ portfolio_generation_form.risk_level() }}<br /><br />
+                <label
+                    >{{ portfolio_generation_form.investment_horizon.label
+                    }}</label
+                >
+                {{ portfolio_generation_form.investment_horizon() }}<br /><br />
+                <label
+                    >{{ portfolio_generation_form.monthly_investment.label
+                    }}</label
+                >
+                {{ portfolio_generation_form.monthly_investment() }}<br /><br />
+                <label
+                    >{{ portfolio_generation_form.investment_goal.label
+                    }}</label
+                >
+                {{ portfolio_generation_form.investment_goal() }}<br /><br />
+                {{ portfolio_generation_form.submit() }}
+            </form>
+        </div>
 
         <hr />
 
-        <h2>Review Portfolio</h2>
-        <form method="POST" action="{{ url_for('dashboard') }}">
-            {{ portfolio_review_form.csrf_token }}
+        <div id="portfolioReviewForm" style="display: none">
+            <h2>Review Portfolio</h2>
+            <form method="POST" action="{{ url_for('dashboard') }}">
+                {{ portfolio_review_form.csrf_token }}
 
-            <label>{{ portfolio_review_form.age.label }}</label>
-            {{ portfolio_review_form.age() }}<br /><br />
+                <label>{{ portfolio_review_form.age.label }}</label>
+                {{ portfolio_review_form.age() }}<br /><br />
 
-            <label>{{ portfolio_review_form.risk_level.label }}</label>
-            {{ portfolio_review_form.risk_level() }}<br /><br />
+                <label>{{ portfolio_review_form.risk_level.label }}</label>
+                {{ portfolio_review_form.risk_level() }}<br /><br />
 
-            <label>{{ portfolio_review_form.investment_horizon.label }}</label>
-            {{ portfolio_review_form.investment_horizon() }}<br /><br />
+                <label
+                    >{{ portfolio_review_form.investment_horizon.label }}</label
+                >
+                {{ portfolio_review_form.investment_horizon() }}<br /><br />
 
-            <h3>Funds:</h3>
+                <h3>Funds:</h3>
 
-            {% for fund in portfolio_review_form.funds %}
-            <p>
-                {{ fund.fund_name.label }} {{ fund.fund_name() }} {{
-                fund.amount.label }} {{ fund.amount() }} {{ fund.remove() }}
-            </p>
-            {% endfor %} {{ portfolio_review_form.add_fund() }} {{
-            portfolio_review_form.submit() }}
-        </form>
+                {% for fund in portfolio_review_form.funds %}
+                <p>
+                    {{ fund.fund_name.label }} {{ fund.fund_name() }} {{
+                    fund.amount.label }} {{ fund.amount() }} {{ fund.remove() }}
+                </p>
+                {% endfor %} {{ portfolio_review_form.add_fund() }} {{
+                portfolio_review_form.submit() }}
+            </form>
+        </div>
     </body>
+    <script>
+        const checkbox = document.getElementById("formSwitcher");
+        const portfolioReviewForm = document.getElementById(
+            "portfolioReviewForm",
+        );
+        const portfolioGenerationForm = document.getElementById(
+            "portfolioGenerationForm",
+        );
+
+        checkbox.addEventListener("change", function () {
+            if (this.checked) {
+                portfolioGenerationForm.style.display = "block";
+                portfolioReviewForm.style.display = "none";
+            } else {
+                portfolioGenerationForm.style.display = "none";
+                portfolioReviewForm.style.display = "block";
+            }
+        });
+    </script>
 </html>
