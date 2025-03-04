@@ -13,6 +13,8 @@ def get_env_var(env_var: str, default: str | None = None) -> str:
     return os.environ[env_var]
 
 
-SECRET_KEY = get_env_var("SECRET_KEY")
+DEEPSEEK_API_KEY = get_env_var("DEEPSEEK_API_KEY")
+PORT = int(get_env_var("PORT", "5000"))
 # SENDGRID_API_KEY = get_env_var("SENDGRID_API_KEY")
+SESSION_SECRET = get_env_var("SESSION_SECRET")
 # XAI_API_KEY = get_env_var("XAI_API_KEY")

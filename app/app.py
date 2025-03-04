@@ -1,6 +1,8 @@
 from flask import redirect, render_template, request, session, url_for
 
 from app import create_app, db
+from app.database import User
+from app.environment import PORT
 from app.forms import (
     LoginForm,
     PortfolioGenerationForm,
@@ -8,12 +10,15 @@ from app.forms import (
     SignupForm,
     VerifyForm,
 )
-from app.utils import generate_otp
+from app.prompts import (
+    portfolio_generation_system_prompt,
+    portfolio_generation_user_query,
+    portfolio_review_system_prompt,
+    portfolio_review_user_query,
+)
+from app.utils import generate_otp, get_llm_response, verify_otp
 
 app = create_app()
-
-with app.app_context():
-    db.create_all()
 
 
 @app.get("/")
@@ -23,36 +28,45 @@ def home():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    form = SignupForm()
-    if form.validate_on_submit():
-        full_name = form.full_name.data
-        email = form.email.data
+    signup_form = SignupForm()
+    if signup_form.validate_on_submit():
+        full_name = signup_form.full_name.data
+        email = signup_form.email.data
         otp = generate_otp()
 
-        session["full_name"] = full_name
-        session["email"] = email
-        session["otp"] = otp
+        user = db.get_or_404(User, email)
+        if user:
+            print("User already exists")
+        else:
+            session["full_name"] = full_name
+            session["email"] = email
+            session["otp"] = otp
+            session["is_signup"] = True
 
-        print("OTP:", otp)
-        return redirect(url_for("verify"))
+            print("OTP:", otp)
+            return redirect(url_for("verify"))
 
-    return render_template("signup.html", form=form)
+    return render_template("signup.html", signup_form=signup_form)
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        email = form.email.data
-        otp = generate_otp()
+    login_form = LoginForm()
+    if login_form.validate_on_submit():
+        email = login_form.email.data
 
-        session["email"] = email
-        session["otp"] = otp
+        user = db.get_or_404(User, email)
+        if user:
+            otp = generate_otp()
+            session["email"] = email
+            session["otp"] = otp
 
-        print("OTP:", otp)
-        return redirect(url_for("verify"))
+            print("OTP:", otp)
+            return redirect(url_for("verify"))
+        else:
+            print("User not found")
 
-    return render_template("login.html", form=form)
+    return render_template("login.html", login_form=login_form)
 
 
 @app.route("/verify", methods=["GET", "POST"])
@@ -60,14 +74,26 @@ def verify():
     if "otp" not in session:
         return redirect(url_for("signup"))
 
-    form = VerifyForm()
-    if form.validate_on_submit():
-        otp = form.otp.data
-        if otp == session["otp"]:
+    verify_form = VerifyForm()
+    if verify_form.validate_on_submit():
+        otp = verify_form.otp.data
+        if verify_otp(otp):
             del session["otp"]
-            return redirect(url_for("dashboard"))
 
-    return render_template("verify.html", email=session.get("email"), form=form)
+            if session["is_signup"]:
+                user = User(email=session["email"], full_name=session["full_name"])
+                db.session.add(user)
+                db.session.commit()
+
+            return redirect(url_for("dashboard"))
+        else:
+            print("Invalid OTP")
+
+    return render_template(
+        "verify.html",
+        email=session.get("email"),
+        verify_form=verify_form,
+    )
 
 
 @app.route("/dashboard", methods=["GET", "POST"])
@@ -78,26 +104,22 @@ def dashboard():
     portfolio_generation_form = PortfolioGenerationForm()
     portfolio_review_form = PortfolioReviewForm()
 
-    if portfolio_generation_form.validate_on_submit() and "submit" in request.form:
-        session["portfolio"] = {
-            "age": portfolio_generation_form.age.data,
-            "risk_level": portfolio_generation_form.risk_level.data,
-            "investment_horizon": portfolio_generation_form.investment_horizon.data,
-            "monthly_investment": portfolio_generation_form.monthly_investment.data,
-            "investment_goal": portfolio_generation_form.investment_goal.data,
-        }
+    if portfolio_generation_form.validate_on_submit():
+        print(
+            get_llm_response(
+                system_prompt=portfolio_generation_system_prompt(),
+                user_query=portfolio_generation_user_query(portfolio_generation_form),
+            )
+        )
         return redirect(url_for("dashboard"))
 
-    if portfolio_review_form.validate_on_submit() and "submit" in request.form:
-        session["review_portfolio"] = {
-            "age": portfolio_review_form.age.data,
-            "risk_level": portfolio_review_form.risk_level.data,
-            "investment_horizon": portfolio_review_form.investment_horizon.data,
-            "funds": [
-                {"fund_name": fund.fund_name.data, "amount": fund.amount.data}
-                for fund in portfolio_review_form.funds.entries
-            ],
-        }
+    if portfolio_review_form.validate_on_submit():
+        print(
+            get_llm_response(
+                system_prompt=portfolio_review_system_prompt(),
+                user_query=portfolio_review_user_query(portfolio_review_form),
+            )
+        )
         return redirect(url_for("dashboard"))
 
     if "add_fund" in request.form:
@@ -118,4 +140,4 @@ def dashboard():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=PORT, host="0.0.0.0")

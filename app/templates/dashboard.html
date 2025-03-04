@@ -13,7 +13,7 @@
 
         <h2>Generate Portfolio</h2>
         <form method="POST" action="{{ url_for('dashboard') }}">
-            {{ portfolio_generation_form.hidden_tag() }}
+            {{ portfolio_generation_form.csrf_token }}
 
             <label>{{ portfolio_generation_form.age.label }}</label>
             {{ portfolio_generation_form.age() }}<br /><br />
@@ -41,7 +41,7 @@
 
         <h2>Review Portfolio</h2>
         <form method="POST" action="{{ url_for('dashboard') }}">
-            {{ portfolio_review_form.hidden_tag() }}
+            {{ portfolio_review_form.csrf_token }}
 
             <label>{{ portfolio_review_form.age.label }}</label>
             {{ portfolio_review_form.age() }}<br /><br />

@@ -8,21 +8,18 @@
     <body>
         <h1>Verify OTP</h1>
 
-        {% if error %}
-        <p style="color: red">{{ error }}</p>
+        {% if verify_form.errors %}
+        <ul class="errors">
+            {% for error in verify_form.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
         {% endif %}
 
         <p>An OTP has been sent to {{ email }}.</p>
-
         <form method="POST">
-            {{ form.csrf_token }}
-
-            <label for="otp">Enter OTP:</label>
-            <input type="text" id="otp" name="otp" required />
-
-            <br /><br />
-
-            <button type="submit">Verify</button>
+            {{ verify_form.csrf_token }} {{ verify_form.otp.label }} {{
+            verify_form.otp() }} {{ verify_form.submit }}
         </form>
     </body>
 </html>

@@ -25,7 +25,7 @@ class LoginForm(FlaskForm):
 
 class VerifyForm(FlaskForm):
     otp = StringField("OTP", validators=[DataRequired()])
-    submit = SubmitField("Log In")
+    submit = SubmitField("Verify")
 
 
 class PersonalInfoForm(FlaskForm):

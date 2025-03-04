@@ -1,22 +1,24 @@
 <!doctype html>
 <html>
     <head>
-        <title>Log In</title>
+        <title>Login</title>
     </head>
     <body>
-        <h1>Log In</h1>
-        <form method="POST">
-            {{ form.csrf_token }} {{ form.email.label }} {{ form.email(size=20)
-            }} {% if form.email.errors %}
-            <ul class="errors">
-                {% for error in form.email.errors %}
-                <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
-            {% endif %}
+        <h1>Login</h1>
 
+        {% if login_form.errors %}
+        <ul class="errors">
+            {% for error in login_form.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <form method="POST">
+            {{ login_form.csrf_token }} {{ login_form.email.label }} {{
+            login_form.email(size=20) }}
             <br /><br />
-            {{ form.submit }}
+            {{ login_form.submit }}
         </form>
     </body>
 </html>
